@@ -1,0 +1,76 @@
+# .kastra.yaml
+version: "1.0"
+
+# Define pipelines
+pipelines:
+  default:
+    - step: Setup Environment
+    - step: Install Dependencies
+    - step: Lint and Test
+    - step: Build Application
+    - step: Deploy Notifications Server
+    - step: Finalize Deployment
+
+# Define steps
+steps:
+  Setup Environment:
+    description: "Setting up environment variables and prerequisites"
+    run:
+      - echo "Setting up Node.js environment..."
+      - node --version
+      - npm --version
+      - echo "Environment setup complete."
+
+  Install Dependencies:
+    description: "Installing dependencies for the project"
+    run:
+      - echo "Installing dependencies..."
+      - npm install
+      - echo "Dependencies installed."
+
+  Lint and Test:
+    description: "Lint the codebase and run automated tests"
+    run:
+      - echo "Running ESLint for code quality checks..."
+      - npx eslint .
+      - echo "Running Jest tests..."
+      - npm test
+
+  Build Application:
+    description: "Building the React Native application for release"
+    run:
+      - echo "Starting build process..."
+      - npx expo-cli build:android --non-interactive
+      - npx expo-cli build:ios --non-interactive
+      - echo "Build process complete."
+
+  Deploy Notifications Server:
+    description: "Setting up a server to manage notifications"
+    run:
+      - echo "Deploying backend for notifications using Expo Push Notifications API..."
+      - cd server
+      - npm install
+      - npm start
+      - echo "Notifications server deployed."
+
+  Finalize Deployment:
+    description: "Completing the pipeline and cleaning up"
+    run:
+      - echo "Finalizing and cleaning up..."
+      - rm -rf tmp
+      - echo "Deployment complete."
+
+# Notifications for pipeline updates
+notifications:
+  success:
+    - "Deployment of Water Reminder App successful! 🎉"
+  failure:
+    - "Deployment failed! Please check the logs. ⚠️"
+
+# Additional settings
+settings:
+  environment:
+    NODE_ENV: production
+  cache:
+    paths:
+      - node_modules/
