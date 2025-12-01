@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 
-export const startReminder = async (intervalMinutes: number = 120) => {
+export const startReminder = async (intervalMinutes: number = 1) => {
   const seconds = intervalMinutes * 60;
   
   await Notifications.scheduleNotificationAsync({

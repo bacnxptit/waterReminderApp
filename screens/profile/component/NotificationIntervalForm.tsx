@@ -9,7 +9,7 @@ type NotificationIntervalFormProps = {
 };
 
 const NotificationIntervalForm = ({
-  initialValue = 120,
+  initialValue = 1,
   updateNotificationInterval,
 }: NotificationIntervalFormProps) => {
   const {textTheme} = useContext(FontContext);

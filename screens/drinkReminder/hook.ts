@@ -37,14 +37,27 @@ export const useDrinkReminder = () => {
   };
 
   const scheduleReminder = async () => {
-    await Notifications.cancelAllScheduledNotificationsAsync();
-    const interval = (userInfo as any)?.notificationInterval ?? 120;
-    startReminder(interval);
-    const hours = Math.floor(interval / 60);
-    const mins = interval % 60;
-    const timeText = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-    ToastAndroid.show(`Reminder set for every ${timeText}.`, 3000);
-  };
+  await Notifications.cancelAllScheduledNotificationsAsync();
+
+  // TEST = 1 phút thay vì lấy từ userInfo
+  const interval = 1; // <= gửi mỗi 1 phút
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Drink Water Reminder 💧",
+      body: "Time to drink water!",
+      sound: true,
+      priority: 'high',
+    },
+    trigger: {
+      seconds: interval * 60, // 1 phút = 60 giây
+      repeats: true,
+    }
+  });
+
+  ToastAndroid.show(`Reminder set every 1 minute`, 3000);
+};
+
 
   return {
     isReminderActive,
