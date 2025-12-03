@@ -4,11 +4,15 @@ import {ToastAndroid} from 'react-native';
 import {requestPermissionNotificationReminder, startReminder} from './util';
 import {UserContext} from '@/context/UserAuthContext';
 
+export type UserInfoType = {
+  notificationInterval?: number;
+};
+
+
 export const useDrinkReminder = () => {
   const [isReminderActive, setIsReminderActive] = useState(false);
   const {userInfo} = useContext(UserContext);
 
-  // Request notification permissions on load
   useEffect(() => {
     requestPermissionNotificationReminder().then(({status}) => {
       if (status !== 'granted') {
@@ -18,46 +22,36 @@ export const useDrinkReminder = () => {
   }, []);
 
   useEffect(() => {
-    getAllnoti();
+    getAllNotifications();
   }, []);
 
-  const getAllnoti = async () => {
-    const not = await Notifications.getAllScheduledNotificationsAsync();
-    setIsReminderActive(not.length > 0);
+  const getAllNotifications = async () => {
+    const notis = await Notifications.getAllScheduledNotificationsAsync();
+    setIsReminderActive(notis.length > 0);
   };
 
   const toggleReminder = async () => {
     if (isReminderActive) {
       await Notifications.cancelAllScheduledNotificationsAsync();
       ToastAndroid.show('Reminder is paused', 3000);
+      setIsReminderActive(false);
     } else {
-      scheduleReminder();
+      const interval = userInfo?.notificationInterval ?? 30;
+
+      await startReminder(interval);
+      ToastAndroid.show(`Reminder set every ${interval} minute(s)`, 3000);
+      setIsReminderActive(true);
     }
-    setIsReminderActive(!isReminderActive);
   };
 
-  const scheduleReminder = async () => {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  // Tự động update interval khi user thay đổi
+  useEffect(() => {
+    if (isReminderActive) {
+      const interval = userInfo?.notificationInterval ?? 30;
 
-  // TEST = 1 phút thay vì lấy từ userInfo
-  const interval = 1; // <= gửi mỗi 1 phút
-
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "Drink Water Reminder 💧",
-      body: "Time to drink water!",
-      sound: true,
-      priority: 'high',
-    },
-    trigger: {
-      seconds: interval * 60, // 1 phút = 60 giây
-      repeats: true,
+      startReminder(interval);
     }
-  });
-
-  ToastAndroid.show(`Reminder set every 1 minute`, 3000);
-};
-
+  }, [userInfo?.notificationInterval]);
 
   return {
     isReminderActive,

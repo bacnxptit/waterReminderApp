@@ -1,26 +1,24 @@
 import * as Notifications from 'expo-notifications';
 
-export const startReminder = async (intervalMinutes: number = 1) => {
-  const seconds = intervalMinutes * 60;
-  
+export const startReminder = async (intervalMinutes: number = 30) => {
+  // luôn cancel cái cũ để tránh trùng
+  await Notifications.cancelAllScheduledNotificationsAsync();
+
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Time to Drink Water!',
-      body: `Stay hydrated! It's time for a water break.`,
+      title: 'Drink Water Reminder 💧',
+      body: "Time to drink water!",
       sound: true,
-      vibrate: [2],
+      priority: 'high',
     },
     trigger: {
-      seconds: seconds,
+      seconds: intervalMinutes * 60,
       repeats: true,
     },
   });
-  return;
 };
 
 export const requestPermissionNotificationReminder = async () => {
   const {status} = await Notifications.requestPermissionsAsync();
-  return {
-    status,
-  };
+  return { status };
 };
